@@ -2,10 +2,12 @@ package db
 
 import (
 	"context"
+	sql2 "database/sql"
 	"errors"
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"reflect"
 )
 
 // 单个Mysql连接
@@ -58,20 +60,20 @@ func (dbConn *DBConn) Rollback(context context.Context) (err error) {
 	return
 }
 
-//func (dbConn *DBConn) Query(context context.Context, result interface{}, sql string, values ...interface{}) (err error) {
+func (dbConn *DBConn) Query(context context.Context, result interface{}, sql string, values ...interface{}) (err error) {
 
-//var rows *sql2.Rows
-//if rows, err = dbConn.gorm.Raw(sql, values...).Rows(); err != nil {
-//	return
-//	}
-//for rows.Next() {
-//elem := reflect.New(type3.Elem())                                   // 创建*Element
-//if err = dbConn.gorm.ScanRows(rows, elem.Interface()); err != nil { // 填充*Element
-//	return
-//}
-//newSlice := reflect.Append(reflect.ValueOf(result).Elem(), elem) // 将*Element追加到*result
-//reflect.ValueOf(result).Elem().Set(newSlice)                     // 将新slice赋值给*result
-//}
-//return
+	var rows *sql2.Rows
+	if rows, err = dbConn.gorm.Raw(sql, values...).Rows(); err != nil {
+		return
+	}
+	for rows.Next() {
+		elem := reflect.New(type3.Elem())                                   // 创建*Element
+		if err = dbConn.gorm.ScanRows(rows, elem.Interface()); err != nil { // 填充*Element
+			return
+		}
+		newSlice := reflect.Append(reflect.ValueOf(result).Elem(), elem) // 将*Element追加到*result
+		reflect.ValueOf(result).Elem().Set(newSlice)                     // 将新slice赋值给*result
+	}
+	return
 
-//}
+}
