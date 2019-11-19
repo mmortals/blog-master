@@ -1,9 +1,12 @@
 package model
 
 type UserRegister struct {
-	id       int
+	Id       int
 	UserName string `grom:"default:'galeone'"`
 	NickName string
-	Age      int
+	UserFace string
 	Password int
+	Enable   int
+	Email    string
+	RegTime  string
 }
