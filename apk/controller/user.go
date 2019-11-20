@@ -8,12 +8,23 @@ import (
 //初始化 user 路由组
 func init() {
 	g := Engine.Group("/user")
-	g.GET("/regist/:id/:username", public.Handler(UserController{}.Regist))
+	g.POST("/register", public.Handler(UserController{}.Register))
+	g.POST("/delete/:id", public.Handler(UserController{}.Delete))
+
 }
 
 type UserController struct{}
 
-// Regist 用户注册
-func (UserController) Regist(c *public.MyfContext) {
-	service.UserService.Regist(c)
+// Register 用户注册
+func (UserController) Register(c *public.MyfContext) {
+	service.UserService.Register(c)
+}
+
+//用户登录
+func (UserController) login(c *public.MyfContext) {
+
+}
+
+func (UserController) Delete(c *public.MyfContext) {
+	service.UserService.Delete(c)
 }

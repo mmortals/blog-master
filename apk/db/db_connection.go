@@ -47,6 +47,7 @@ func (dbConn *DBConn) Commit(context context.Context) (err error) {
 		return errors.New("tx error")
 	}
 	dbConn.gorm.Commit()
+	_ = dbConn.gorm.Close()
 	return
 }
 
@@ -66,4 +67,22 @@ func (dbConn *DBConn) Query(context context.Context, sql string, values ...inter
 		return nil, err
 	}
 	return rows, nil
+}
+
+func (dbConn *DBConn) Insert(context context.Context, sql string, values ...interface{}) (result2 *sql2.Result, err error) {
+	var result sql2.Result
+	if result, err = dbConn.gorm.CommonDB().Exec(sql, values...); nil != err {
+
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (dbConn *DBConn) Delete(context context.Context, sql string, values ...interface{}) (result2 *sql2.Result, err error) {
+	var result sql2.Result
+	if result, err = dbConn.gorm.CommonDB().Exec(sql, values...); nil != err {
+
+		return nil, err
+	}
+	return &result, nil
 }

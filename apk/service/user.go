@@ -9,8 +9,16 @@ type userService struct{}
 
 var UserService = new(userService)
 
-func (*userService) Regist(c *public.MyfContext) {
+func (*userService) Register(c *public.MyfContext) {
 
-	dao.UserDao.Regist(c)
+	dao.UserDao.Register(c)
 
+}
+
+func (*userService) login(c *public.MyfContext) {
+	dao.UserDao.Login(c)
+}
+
+func (*userService) Delete(c *public.MyfContext) {
+	dao.UserDao.Delete(c)
 }

@@ -9,5 +9,5 @@ func main() {
 
 	fmt.Println(">>>>>go go go !<<<<<")
 	// 启动web容器
-	controller.Engine.Run()
+	_ = controller.Engine.Run()
 }

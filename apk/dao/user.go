@@ -2,44 +2,77 @@ package dao
 
 import (
 	"blog-master/apk/db"
-	"blog-master/apk/model"
 	"blog-master/public"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 type userDao struct{}
 
 var UserDao = new(userDao)
 
-func (*userDao) Regist(c *public.MyfContext) {
-
-	var url = c.Gin.Request.RequestURI
-	id := c.Gin.Param("id")
+func (*userDao) Register(c *public.MyfContext) {
 
 	dbConn, err := db.NewDbConnection()
+
 	if nil != err {
 		return
 	}
-	dbConn.Begin(c.Context)
-	rows, err := dbConn.Query(c.Context, "select * from user where id = ?", id)
-	dbConn.Commit(c.Context)
+	username := c.Gin.Request.FormValue("username")
+	nickName := c.Gin.Request.FormValue("nickName")
+	password := c.Gin.Request.FormValue("password")
+	email := c.Gin.Request.FormValue("email")
+	userface := "http://www.baidu.com/"
+	_, err = dbConn.Begin(c.Context)
+	if nil != err {
+		return
+	}
+	_, err = dbConn.Insert(c.Context, "insert into user(username,nickname,password,enabled,email,userface) values (?,?,?,?,?,?)",
+		username, nickName, password, 0, email, userface)
+
 	if nil != err {
 		fmt.Println(err)
-	}
-	users := make([]model.UserRegister, 0, 5)
-	for rows.Next() {
-		user := new(model.UserRegister)
-		err := rows.Scan(&user.Id, &user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
-		if nil != err {
-			fmt.Println(err)
-		}
-		users = append(users, *user)
-	}
-	fmt.Printf(">>>>>url is :<<<<<", url)
+		return
 
-	c.Gin.JSON(200, gin.H{
-		"message": url,
-		"result":  users,
+	}
+	err = dbConn.Commit(c.Context)
+	if nil != err {
+		return
+
+	}
+	msg := fmt.Sprintf("insert successful %d", username)
+	c.Gin.JSON(http.StatusOK, gin.H{
+		"message": msg,
+	})
+
+}
+
+func (*userDao) Login(c *public.MyfContext) {
+
+}
+
+func (*userDao) Delete(c *public.MyfContext) {
+	dbConn, err := db.NewDbConnection()
+
+	if nil != err {
+		return
+	}
+	id := c.Gin.Param("id")
+	_, err = dbConn.Begin(c.Context)
+	if nil != err {
+		return
+	}
+	_, err = dbConn.Delete(c.Context, "delete from user where id=?", id)
+	if nil != err {
+		return
+	}
+	err = dbConn.Commit(c.Context)
+	if nil != err {
+		return
+
+	}
+	c.Gin.JSON(http.StatusOK, gin.H{
+		"message": "删除成功",
 	})
 }
