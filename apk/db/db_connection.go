@@ -69,6 +69,11 @@ func (dbConn *DBConn) Query(context context.Context, sql string, values ...inter
 	return rows, nil
 }
 
+func (dbConn *DBConn) QueryRow(sql string, values ...interface{}) (result2 *sql2.Row) {
+
+	return dbConn.gorm.Raw(sql, values...).Row()
+}
+
 func (dbConn *DBConn) Insert(context context.Context, sql string, values ...interface{}) (result2 *sql2.Result, err error) {
 	var result sql2.Result
 	if result, err = dbConn.gorm.CommonDB().Exec(sql, values...); nil != err {
@@ -79,6 +84,15 @@ func (dbConn *DBConn) Insert(context context.Context, sql string, values ...inte
 }
 
 func (dbConn *DBConn) Delete(context context.Context, sql string, values ...interface{}) (result2 *sql2.Result, err error) {
+	var result sql2.Result
+	if result, err = dbConn.gorm.CommonDB().Exec(sql, values...); nil != err {
+
+		return nil, err
+	}
+	return &result, nil
+}
+
+func (dbConn *DBConn) Update(context context.Context, sql string, values ...interface{}) (result2 *sql2.Result, err error) {
 	var result sql2.Result
 	if result, err = dbConn.gorm.CommonDB().Exec(sql, values...); nil != err {
 

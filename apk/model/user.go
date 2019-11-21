@@ -1,6 +1,6 @@
 package model
 
-type UserRegister struct {
+type User struct {
 	Id       int
 	UserName string `grom:"default:'galeone'"`
 	NickName string
