@@ -121,12 +121,11 @@ func (*userDao) FindUsers(c *public.MyfContext) ([]model.User, error) {
 	return users, nil
 }
 
-func (*userDao) DeleteById(c *public.MyfContext) error {
+func (*userDao) DeleteById(c *public.MyfContext, id int16) error {
 	dbConn, err := db.NewDbConnection()
 	if nil != err {
 		return err
 	}
-	id := c.Gin.Param("id")
 	_, err = dbConn.Begin(c.Context)
 	if nil != err {
 		return err

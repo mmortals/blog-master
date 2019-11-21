@@ -5,7 +5,7 @@ type User struct {
 	UserName string `grom:"default:'galeone'"`
 	NickName string
 	UserFace string
-	Password int
+	Password string
 	Enable   int
 	Email    string
 	RegTime  string
