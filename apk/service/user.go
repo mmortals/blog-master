@@ -4,6 +4,7 @@ import (
 	"blog-master/apk/dao"
 	"blog-master/apk/model"
 	"blog-master/public"
+	"fmt"
 	"strconv"
 )
 
@@ -11,7 +12,7 @@ type userService struct{}
 
 var UserService = new(userService)
 
-func (*userService) Register(c *public.MyfContext) {
+func (*userService) Register(c *public.MyfContext) (err error) {
 	var user model.User
 	username := c.Gin.Request.FormValue("username")
 	nickName := c.Gin.Request.FormValue("nickName")
@@ -21,12 +22,15 @@ func (*userService) Register(c *public.MyfContext) {
 	user.NickName = nickName
 	user.Password = password
 	user.Email = email
-	_, err := dao.UserDao.FindUserByUsername(c, username)
-	if nil != err {
-		return
-	}
-	_ = dao.UserDao.AddUser(c, user)
+	_, err = dao.UserDao.FindUserByUsername(c, username)
+	if nil == err {
 
+	}
+	err = dao.UserDao.AddUser(c, user)
+	if nil != err {
+		fmt.Println(err)
+	}
+	return
 }
 
 func (*userService) login(c *public.MyfContext) {

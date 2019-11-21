@@ -4,6 +4,7 @@ import (
 	"blog-master/apk/db"
 	"blog-master/apk/model"
 	"blog-master/public"
+	"crypto/md5"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -62,8 +63,9 @@ func (*userDao) AddUser(c *public.MyfContext, user model.User) error {
 	if nil != err {
 		return err
 	}
+	password := fmt.Sprintf("%x", md5.Sum([]byte(user.Password)))
 	_, err = dbConn.Insert(c.Context, "insert into user(username,nickname,password,enabled,email,userface) values (?,?,?,?,?,?)",
-		user.UserName, user.NickName, user.Password, 0, user.Email, user.UserFace)
+		user.UserName, user.NickName, password, 0, user.Email, user.UserFace)
 
 	if nil != err {
 		fmt.Println(err)
@@ -108,11 +110,11 @@ func (*userDao) FindUserByUsername(c *public.MyfContext, username string) (model
 	}
 	err = dbConn.QueryRow("select username,nickname,password,enabled,email,userface from user where username=?", username).Scan(&user.Id,
 		&user.UserName, &user.NickName, &user.UserFace, &user.Password, &user.Enable, &user.Email, &user.RegTime)
+	err = dbConn.Commit(c.Context)
 	if err != nil {
 		fmt.Println(err)
 		return user, err
 	}
-	err = dbConn.Commit(c.Context)
 	return user, err
 }
 
