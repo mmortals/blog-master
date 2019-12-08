@@ -7,9 +7,9 @@ import (
 
 //初始化 user 路由组
 func init() {
-	g := Engine.Group("/user")
-	g.POST("/register", public.Handler(UserController{}.Register))
-	g.POST("/delete/:id", public.Handler(UserController{}.Delete))
+	//g := Engine.Group("/user")
+	//g.POST("/register", public.Handler(UserController{}.Register))
+	//g.POST("/delete/:id", public.Handler(UserController{}.Delete))
 
 }
 
