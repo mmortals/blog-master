@@ -33,6 +33,8 @@ func (app *MyfApp) initGin() {
 
 	// 调试模式
 
+
+
 	// 生产模式
 	app.Gin = gin.New()
 }
