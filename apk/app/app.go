@@ -32,8 +32,7 @@ func New() (app *MyfApp, err error) {
 func (app *MyfApp) initGin() {
 
 	// 调试模式
-
-
+	//ddd
 
 	// 生产模式
 	app.Gin = gin.New()
