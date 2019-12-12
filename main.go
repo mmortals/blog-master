@@ -5,6 +5,7 @@ import (
 	"blog-master/apk/controller"
 	"blog-master/public"
 	"fmt"
+	"log"
 )
 
 func main() {
@@ -13,9 +14,10 @@ func main() {
 	// 启动web容器
 	//_ = controller.Engine.Run()
 
-	app, _ := app.New()
-	//test
-	
+	app, err := app.New()
+	if nil != err {
+		log.Fatal(">>>app start failed<<<")
+	}
 
 	g := app.Gin.Group("/user")
 	g.POST("/register", public.Handler(controller.UserController{}.Register))
