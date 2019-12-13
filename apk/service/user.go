@@ -4,6 +4,7 @@ import (
 	"blog-master/apk/dao"
 	"blog-master/apk/model"
 	"blog-master/public"
+	"crypto/md5"
 	"fmt"
 	"strconv"
 )
@@ -33,8 +34,12 @@ func (*userService) Register(c *public.MyfContext) (err error) {
 	return
 }
 
-func (*userService) login(c *public.MyfContext) {
-	dao.UserDao.Login(c)
+func (*userService) Login(c *public.MyfContext) (user model.User, err error) {
+	username := c.Gin.Request.FormValue("username")
+	password := c.Gin.Request.FormValue("password")
+	password = fmt.Sprintf("%x", md5.Sum([]byte(password)))
+	user, err = dao.UserDao.Login(username, password, c)
+	return
 }
 
 func (*userService) Delete(c *public.MyfContext) {

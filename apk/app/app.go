@@ -42,7 +42,7 @@ func (app *MyfApp) initGin() {
 func (app *MyfApp) Run() (err error) {
 
 	srv := &http.Server{
-		Addr:         "localhost:8080",
+		Addr:         "localhost:8081",
 		Handler:      app.Gin,
 		ReadTimeout:  10 * time.Second,
 		WriteTimeout: 10 * time.Second,

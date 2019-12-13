@@ -3,6 +3,9 @@ package controller
 import (
 	"blog-master/apk/service"
 	"blog-master/public"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 //初始化 user 路由组
@@ -21,7 +24,26 @@ func (UserController) Register(c *public.MyfContext) {
 }
 
 //用户登录
-func (UserController) login(c *public.MyfContext) {
+func (UserController) Login(c *public.MyfContext) {
+
+	user, err := service.UserService.Login(c)
+
+	if nil != err {
+		fmt.Println(err)
+		c.Gin.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": "userController.Login  error ",
+			"error":   err,
+		})
+	} else {
+		c.Gin.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": user,
+			"error":   err,
+			"success": "success",
+		})
+
+	}
 
 }
 

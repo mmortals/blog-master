@@ -50,8 +50,21 @@ func (*userDao) Register(c *public.MyfContext) {
 
 }
 
-func (*userDao) Login(c *public.MyfContext) {
+func (*userDao) Login(username string, password string, c *public.MyfContext) (user model.User, err error) {
 
+	dbConn, err := db.NewDbConnection()
+	if nil != err {
+		return
+	}
+	_, err = dbConn.Begin(c.Context)
+
+	if nil != err {
+		return
+	}
+	err = dbConn.QueryRow("select  id,username,nickname,password,enabled,email,userface,regTime from user where username=? and password=? ", username, password).Scan(&user.Id,
+		&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
+
+	return
 }
 
 func (*userDao) AddUser(c *public.MyfContext, user model.User) error {
