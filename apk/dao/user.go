@@ -26,7 +26,7 @@ func (*userDao) Register(c *public.MyfContext) {
 	password := c.Gin.Request.FormValue("password")
 	email := c.Gin.Request.FormValue("email")
 	userface := "http://www.baidu.com/"
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 	if nil != err {
 		return
 	}
@@ -56,14 +56,14 @@ func (*userDao) Login(username string, password string, c *public.MyfContext) (u
 	if nil != err {
 		return
 	}
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 
 	if nil != err {
 		return
 	}
 	err = dbConn.QueryRow("select  id,username,nickname,password,enabled,email,userface,regTime from user where username=? and password=? ", username, password).Scan(&user.Id,
 		&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
-
+	dbConn.Commit(c.Context)
 	return
 }
 
@@ -72,7 +72,7 @@ func (*userDao) AddUser(c *public.MyfContext, user model.User) error {
 	if nil != err {
 		return err
 	}
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 	if nil != err {
 		return err
 	}
@@ -97,17 +97,19 @@ func (*userDao) FindUserById(c *public.MyfContext, id int16) (model.User, error)
 	if err != nil {
 		return user, err
 	}
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 	if err != nil {
 		return user, err
 	}
-	err = dbConn.QueryRow("select username,nickname,password,enabled,email,userface from user where id=?", id).Scan(&user.Id,
-		&user.UserName, &user.NickName, &user.UserFace, &user.Password, &user.Enable, &user.Email, &user.RegTime)
+	err = dbConn.QueryRow("select  id,username,nickname,password,enabled,email,userface,regTime from user where id=?", id).Scan(&user.Id,
+		&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
+	err = dbConn.Commit(c.Context)
+
 	if err != nil {
 		fmt.Println(err)
 		return user, err
 	}
-	err = dbConn.Commit(c.Context)
+
 	return user, err
 }
 
@@ -117,7 +119,7 @@ func (*userDao) FindUserByUsername(c *public.MyfContext, username string) (model
 	if err != nil {
 		return user, err
 	}
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 	if err != nil {
 		return user, err
 	}
@@ -141,7 +143,7 @@ func (*userDao) DeleteById(c *public.MyfContext, id int16) error {
 	if nil != err {
 		return err
 	}
-	_, err = dbConn.Begin(c.Context)
+	dbConn, err = dbConn.Begin(c.Context)
 	if nil != err {
 		return err
 	}

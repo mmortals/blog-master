@@ -1,6 +1,8 @@
 package app
 
 import (
+	"blog-master/apk/clients/myredis"
+	"blog-master/conf"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -17,13 +19,20 @@ type MyfApp struct {
 
 func New() (app *MyfApp, err error) {
 
+	// 加载配置
+	if err = conf.InitConf(); err != nil {
+		return
+	}
 	// 创建APP
 	app = &MyfApp{}
 
 	// 创建Gin
 	app.initGin()
 	// 创建客户端
-
+	// 创建客户端
+	if err = app.initClients(); err != nil {
+		return
+	}
 	// 注册中间件
 	return
 }
@@ -36,6 +45,16 @@ func (app *MyfApp) initGin() {
 
 	// 生产模式
 	app.Gin = gin.New()
+}
+
+// 初始化各种客户端
+func (app *MyfApp) initClients() (err error) {
+
+	// 拉起REDIS
+	if err = myredis.ConnectRedis(); err != nil {
+		return
+	}
+	return
 }
 
 // 启动APP

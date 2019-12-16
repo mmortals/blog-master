@@ -1,6 +1,7 @@
 package public
 
 import (
+	"blog-master/apk/clients/myredis"
 	"context"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -21,11 +22,13 @@ func Handler(handler MyfHandleFunc) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		if c.Request.RequestURI != "/user/login" {
-			author := c.Query("author")
-			if "" == author {
+
+			userId, err := myredis.MyfRedis.Get("userId").Result()
+
+			if "" == userId || nil != err {
 				c.JSON(http.StatusUnauthorized, gin.H{"message": "访问未授权"})
 			}
-			return
+
 		}
 		// 请求超时控制
 		timeoutCtx, cancelFunc := context.WithTimeout(c, time.Duration(5000)*time.Millisecond)

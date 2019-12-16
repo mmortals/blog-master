@@ -46,3 +46,16 @@ func (*userService) Delete(c *public.MyfContext) {
 	id, _ := strconv.Atoi(c.Gin.Param("id"))
 	_ = dao.UserDao.DeleteById(c, int16(id))
 }
+func (service *userService) FindUserById(c *public.MyfContext) (user model.User, err error) {
+
+	userId, err := strconv.Atoi(c.Gin.Request.FormValue("userId"))
+	if nil != err {
+
+	}
+	user, err = dao.UserDao.FindUserById(c, int16(userId))
+
+	if nil != err {
+		return
+	}
+	return
+}

@@ -23,5 +23,6 @@ func main() {
 	g.POST("/register", public.Handler(controller.UserController{}.Register))
 	g.POST("/delete/:id", public.Handler(controller.UserController{}.Delete))
 	g.POST("/login", public.Handler(controller.UserController{}.Login))
+	g.POST("/findUserById", public.Handler(controller.UserController{}.FindUserById))
 	app.Run()
 }

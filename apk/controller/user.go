@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"blog-master/apk/clients/myredis"
 	"blog-master/apk/service"
 	"blog-master/public"
 	"fmt"
@@ -36,6 +37,7 @@ func (UserController) Login(c *public.MyfContext) {
 			"error":   err,
 		})
 	} else {
+		myredis.MyfRedis.Set("userId", user.Id, 0)
 		c.Gin.JSON(http.StatusOK, gin.H{
 			"status":  http.StatusOK,
 			"message": user,
@@ -49,4 +51,25 @@ func (UserController) Login(c *public.MyfContext) {
 
 func (UserController) Delete(c *public.MyfContext) {
 	service.UserService.Delete(c)
+}
+
+func (UserController) FindUserById(c *public.MyfContext) {
+	user, err := service.UserService.FindUserById(c)
+
+	if nil != err {
+		fmt.Println(err)
+		c.Gin.JSON(http.StatusInternalServerError, gin.H{
+			"status":  http.StatusInternalServerError,
+			"message": "userController.Login  error ",
+			"error":   err,
+		})
+	} else {
+		myredis.MyfRedis.Set("userId", user.Id, 0)
+		c.Gin.JSON(http.StatusOK, gin.H{
+			"status":  http.StatusOK,
+			"message": user,
+			"error":   err,
+			"success": "success",
+		})
+	}
 }
