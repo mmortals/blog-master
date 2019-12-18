@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"crypto/md5"
 	"fmt"
 	"log"
 	"net/http"
@@ -22,7 +21,7 @@ func TestUserController_Register(t *testing.T) {
 
 func Test_md5(t *testing.T) {
 	password := "duanzhengchun"
-	password = fmt.Sprintf("%x", md5.Sum([]byte(password)))
+
 	fmt.Println(password)
 }
 

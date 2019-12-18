@@ -60,16 +60,17 @@ func (dbConn *DBConn) Rollback(context context.Context) (err error) {
 	return
 }
 
-func (dbConn *DBConn) Query(context context.Context, sql string, values ...interface{}) (result2 *sql2.Rows, err error) {
+//查找
+func (dbConn *DBConn) Query(context context.Context, sql string, values ...interface{}) (rows *sql2.Rows, err error) {
 
-	var rows *sql2.Rows
 	if rows, err = dbConn.gorm.Raw(sql, values...).Rows(); err != nil {
-		return nil, err
+		fmt.Println(err)
+		return
 	}
-	return rows, nil
+	return
 }
 
-func (dbConn *DBConn) QueryRow(sql string, values ...interface{}) (result2 *sql2.Row) {
+func (dbConn *DBConn) QueryRow(context context.Context, sql string, values ...interface{}) (result2 *sql2.Row) {
 
 	return dbConn.gorm.Raw(sql, values...).Row()
 }

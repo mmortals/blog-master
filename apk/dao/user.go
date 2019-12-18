@@ -61,7 +61,7 @@ func (*userDao) Login(username string, password string, c *public.MyfContext) (u
 	if nil != err {
 		return
 	}
-	err = dbConn.QueryRow("select  id,username,nickname,password,enabled,email,userface,regTime from user where username=? and password=? ", username, password).Scan(&user.Id,
+	err = dbConn.QueryRow(c.Context, "select  id,username,nickname,password,enabled,email,userface,regTime from user where username=? and password=? ", username, password).Scan(&user.Id,
 		&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
 	dbConn.Commit(c.Context)
 	return
@@ -91,46 +91,59 @@ func (*userDao) AddUser(c *public.MyfContext, user model.User) error {
 	return err
 }
 
-func (*userDao) FindUserById(c *public.MyfContext, id int16) (model.User, error) {
-	var user model.User
+func (*userDao) FindUserById(c *public.MyfContext, id int16) (user model.User, err error) {
 	dbConn, err := db.NewDbConnection()
 	if err != nil {
-		return user, err
+		return
 	}
 	dbConn, err = dbConn.Begin(c.Context)
 	if err != nil {
-		return user, err
+		return
 	}
-	err = dbConn.QueryRow("select  id,username,nickname,password,enabled,email,userface,regTime from user where id=?", id).Scan(&user.Id,
-		&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
+
+	if result, err := dbConn.Query(c.Context, "select  id,username,nickname,password,enabled,email,userface,regTime from user where id=?", id); nil != err {
+		return
+	} else {
+		if result.Next() {
+			err = result.Scan(
+				&user.Id,
+				&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
+			if nil != err {
+				return
+			}
+		}
+	}
+
 	err = dbConn.Commit(c.Context)
 
 	if err != nil {
 		fmt.Println(err)
-		return user, err
+		return
 	}
-
-	return user, err
+	return
 }
 
-func (*userDao) FindUserByUsername(c *public.MyfContext, username string) (model.User, error) {
-	var user model.User
+func (*userDao) FindUserByUsername(c *public.MyfContext, username string) (user model.User, err error) {
+
 	dbConn, err := db.NewDbConnection()
 	if err != nil {
 		return user, err
 	}
 	dbConn, err = dbConn.Begin(c.Context)
 	if err != nil {
-		return user, err
+		return
 	}
-	err = dbConn.QueryRow("select username,nickname,password,enabled,email,userface from user where username=?", username).Scan(&user.Id,
-		&user.UserName, &user.NickName, &user.UserFace, &user.Password, &user.Enable, &user.Email, &user.RegTime)
+	var sql = "select username,nickname,password,enabled,email,userface from user where username=?"
+	if result, err := dbConn.Query(c.Context, sql, username); nil != err {
+		result.Scan(&user.Id,
+			&user.UserName, &user.NickName, &user.UserFace, &user.Password, &user.Enable, &user.Email, &user.RegTime)
+	}
 	err = dbConn.Commit(c.Context)
 	if err != nil {
 		fmt.Println(err)
-		return user, err
+		return
 	}
-	return user, err
+	return
 }
 
 func (*userDao) FindUsers(c *public.MyfContext) ([]model.User, error) {
