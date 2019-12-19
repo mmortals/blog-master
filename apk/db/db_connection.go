@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+	"reflect"
 )
 
 // 单个Mysql连接
@@ -14,6 +15,15 @@ type DBConn struct {
 	gorm *gorm.DB
 	tx   bool // 是否是事务
 }
+
+// 错误码
+var (
+	ERR_DB_GROUP_NOT_FOUND   = errors.New("此DB不存在")
+	ERR_DB_CONN_NOT_FOUND    = errors.New("没有可用DB连接")
+	ERR_QUERY_RESULT_INVALID = errors.New("result传参类型必须是*[]*ElemType")
+	ERR_RECURSION_TX         = errors.New("嵌套开启了事务")
+	ERR_INVALID_TX           = errors.New("非事务不能提交或回滚")
+)
 
 func NewDbConnection() (dbConn *DBConn, err error) {
 
@@ -61,11 +71,35 @@ func (dbConn *DBConn) Rollback(context context.Context) (err error) {
 }
 
 //查找
-func (dbConn *DBConn) Query(context context.Context, sql string, values ...interface{}) (rows *sql2.Rows, err error) {
+func (dbConn *DBConn) Query(context context.Context, result interface{}, sql string, values ...interface{}) (err error) {
 
+	var (
+		type1, type2, type3 reflect.Type
+	)
+	if type1 = reflect.TypeOf(result); type1.Kind() != reflect.Ptr { // type1是*[]*Element
+		err = ERR_QUERY_RESULT_INVALID
+		return
+	}
+	if type2 = type1.Elem(); type2.Kind() != reflect.Slice { // type2是[]*Element
+		err = ERR_QUERY_RESULT_INVALID
+		return
+	}
+	if type3 = type2.Elem(); type3.Kind() != reflect.Ptr { // type3是*Element
+		err = ERR_QUERY_RESULT_INVALID
+		return
+	}
+	var rows *sql2.Rows
 	if rows, err = dbConn.gorm.Raw(sql, values...).Rows(); err != nil {
 		fmt.Println(err)
 		return
+	}
+	for rows.Next() {
+		elem := reflect.New(type3.Elem())                                   // 创建*Element
+		if err = dbConn.gorm.ScanRows(rows, elem.Interface()); err != nil { // 填充*Element
+			return
+		}
+		newSlice := reflect.Append(reflect.ValueOf(result).Elem(), elem) // 将*Element追加到*result
+		reflect.ValueOf(result).Elem().Set(newSlice)                     // 将新slice赋值给*result
 	}
 	return
 }

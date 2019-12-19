@@ -92,28 +92,24 @@ func (*userDao) AddUser(c *public.MyfContext, user model.User) error {
 }
 
 func (*userDao) FindUserById(c *public.MyfContext, id int16) (user model.User, err error) {
+
 	dbConn, err := db.NewDbConnection()
 	if err != nil {
 		return
 	}
+
 	dbConn, err = dbConn.Begin(c.Context)
 	if err != nil {
 		return
 	}
-
-	if result, err := dbConn.Query(c.Context, "select  id,username,nickname,password,enabled,email,userface,regTime from user where id=?", id); nil != err {
+	var user_arr = []*model.User{}
+	var sql = "select  id,username,nickname,password,enabled,email,userface,regTime from user where id=?"
+	if err = dbConn.Query(c.Context, &user_arr, sql, id); nil != err {
 		return
-	} else {
-		if result.Next() {
-			err = result.Scan(
-				&user.Id,
-				&user.UserName, &user.NickName, &user.Password, &user.Enable, &user.Email, &user.UserFace, &user.RegTime)
-			if nil != err {
-				return
-			}
-		}
 	}
-
+	if len(user_arr) > 0 {
+		user = *user_arr[0]
+	}
 	err = dbConn.Commit(c.Context)
 
 	if err != nil {
@@ -133,11 +129,15 @@ func (*userDao) FindUserByUsername(c *public.MyfContext, username string) (user 
 	if err != nil {
 		return
 	}
+	var user_arr = []*model.User{}
 	var sql = "select username,nickname,password,enabled,email,userface from user where username=?"
-	if result, err := dbConn.Query(c.Context, sql, username); nil != err {
-		result.Scan(&user.Id,
-			&user.UserName, &user.NickName, &user.UserFace, &user.Password, &user.Enable, &user.Email, &user.RegTime)
+	if err = dbConn.Query(c.Context, user_arr, sql, username); nil != err {
+		return
 	}
+	if len(user_arr) > 0 {
+		user = *user_arr[0]
+	}
+
 	err = dbConn.Commit(c.Context)
 	if err != nil {
 		fmt.Println(err)
